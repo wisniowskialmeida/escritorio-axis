@@ -1,0 +1,622 @@
+<title>Escritório AXIS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Silkscreen&display=swap">
+<style>
+/* Layout: cabeçalho com a marca, planta isométrica do andar à esquerda, legenda das salas à direita (empilha no celular). Tema único escuro neon. */
+:root {
+  --bg: #080808;
+  --panel: #111111;
+  --panel-2: #181818;
+  --line: #262626;
+  --fg: #f5f5f5;
+  --muted: #9aa49a;
+  --accent: #39ff14;
+  --accent-soft: #7cff5c;
+  --accent-dim: #1f8a12;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-pixel: "Silkscreen", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background:
+    radial-gradient(1100px 560px at 78% -10%, #0d2208 0%, transparent 58%),
+    radial-gradient(900px 500px at 10% 0%, #0a1410 0%, transparent 60%),
+    var(--bg);
+  min-height: 100%;
+}
+.wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 24px; }
+
+/* Cabeçalho */
+header { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.logo { width: 74px; height: 74px; flex: none; border-radius: 18px; box-shadow: 0 0 0 1px var(--line), 0 0 28px rgba(57,255,20,.18), 0 10px 30px rgba(0,0,0,.5); }
+.brand { min-width: 0; flex: 1 1 320px; }
+.eyebrow { font-family: var(--font-pixel); font-size: 11px; letter-spacing: .14em; color: var(--accent-soft); text-transform: uppercase; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 4.6vw, 50px); line-height: 1.02; margin: 6px 0 6px; text-wrap: balance; letter-spacing: -.02em; }
+h1 em { font-style: normal; color: var(--accent); text-shadow: 0 0 22px rgba(57,255,20,.35); }
+.sub { color: var(--muted); margin: 0; max-width: 64ch; }
+.meta { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); color: var(--fg); white-space: nowrap; }
+.chip b { color: var(--accent-soft); font-weight: 600; }
+
+/* Grade principal */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 20px; align-items: start; }
+@media (max-width: 980px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.stage {
+  position: relative; min-width: 0;
+  background: linear-gradient(180deg, #0e1510 0%, #060807 100%);
+  border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+}
+.stage-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--line); background: rgba(0,0,0,.25); }
+.floor-tag { font-family: var(--font-pixel); font-size: 12px; letter-spacing: .08em; color: var(--fg); }
+.floor-tag span { color: var(--accent-soft); }
+.hint { font-size: 13px; color: var(--muted); }
+.scene-scroll { overflow-x: auto; }
+#scene { display: block; width: 100%; min-width: 620px; height: auto; }
+.room { cursor: pointer; transition: opacity .25s ease, filter .25s ease; }
+.room:focus { outline: none; }
+.room:focus-visible .hit { stroke: var(--accent-soft); stroke-width: 3; }
+.scene.has-focus .room:not(.on) { opacity: .26; filter: saturate(.35); }
+.room.on { filter: drop-shadow(0 0 12px rgba(57,255,20,.5)); }
+.hit { fill: transparent; }
+.badge text { font-family: var(--font-pixel); font-size: 12px; }
+.av { animation: bob 3.2s ease-in-out infinite; }
+.blink { animation: blink 2.4s steps(1) infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-1.6px) } }
+@keyframes blink { 0%,45% { opacity: 1 } 50%,95% { opacity: .35 } 100% { opacity: 1 } }
+@media (prefers-reduced-motion: reduce) { .av, .blink { animation: none; } .room { transition: none; } }
+
+/* Tooltip */
+#tip {
+  position: absolute; pointer-events: none; z-index: 5; width: 256px;
+  background: #0a0f0bf5; border: 1px solid var(--accent-dim); border-radius: 12px;
+  padding: 12px 14px; box-shadow: 0 0 22px rgba(57,255,20,.15), 0 12px 30px rgba(0,0,0,.6); font-size: 13px;
+}
+#tip h3 { margin: 0 0 2px; font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+#tip .who { color: var(--accent-soft); font-size: 12px; margin-bottom: 6px; }
+#tip p { margin: 0; color: var(--muted); }
+
+/* Legenda */
+aside { display: grid; gap: 12px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+.panel h2 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 600; font-size: 20px; }
+.rooms { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rooms button {
+  width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  text-align: left; padding: 8px 10px; border-radius: 12px; border: 1px solid transparent;
+  background: transparent; color: var(--fg); font: inherit; cursor: pointer;
+}
+.rooms button:hover, .rooms button.on { background: var(--panel-2); border-color: var(--line); }
+.rooms button:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 1px; }
+.num { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-family: var(--font-pixel); font-size: 12px; color: #050505; box-shadow: inset 0 -3px 0 rgba(0,0,0,.3); }
+.rname { font-weight: 600; font-size: 14px; line-height: 1.2; }
+.rteam { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.cap { font-family: var(--font-pixel); font-size: 10px; color: var(--muted); letter-spacing: .05em; white-space: nowrap; }
+.specs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.spec { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; }
+.spec b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--accent-soft); font-variant-numeric: tabular-nums; }
+.spec span { font-size: 12px; color: var(--muted); }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+.slogan { font-family: var(--font-pixel); font-size: 11px; color: var(--accent-soft); letter-spacing: .1em; }
+</style>
+
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Logo AXIS Labs">
+      <rect width="100" height="100" rx="20" fill="#050505"/>
+      <polygon points="50,14 81,32 81,68 50,86 19,68 19,32" fill="none" stroke="#39ff14" stroke-width="5.5" stroke-linejoin="round"/>
+      <path d="M38 38 L50 31 L62 38 L62 52 L50 59 L38 52 Z" fill="none" stroke="#39ff14" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M50 59 L50 72 M38 52 L28 58 M62 52 L72 58" fill="none" stroke="#39ff14" stroke-width="4.5" stroke-linecap="round"/>
+      <path d="M44 41 L56 48 M56 41 L44 48" stroke="#050505" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div class="brand">
+      <div class="eyebrow">Sede · Edifício AXIS, 20º andar</div>
+      <h1><em>AXIS</em> Labs</h1>
+      <p class="sub">O andar inteiro da agência de marketing esportivo em visão isométrica: diretoria, o núcleo de IA, os times e um espaço para descomprimir entre um fechamento e outro. Passe o mouse ou toque numa sala para ver quem trabalha ali.</p>
+    </div>
+    <div class="meta">
+      <span class="chip">Dono · <b>Vitor</b></span>
+      <span class="chip slogan">PERFORMANCE QUE ACELERA.</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <section class="stage" aria-label="Planta isométrica do escritório">
+      <div class="stage-top">
+        <span class="floor-tag">20º ANDAR · <span>510 m²</span> · PÉ-DIREITO 3,4 M</span>
+        <span class="hint" id="hint">Clique numa sala para destacar. Clique de novo para ver tudo.</span>
+      </div>
+      <div class="scene-scroll">
+        <svg id="scene" class="scene" viewBox="-392 -124 784 540" role="group" aria-label="Escritório da AXIS com 9 ambientes"></svg>
+      </div>
+      <div id="tip" hidden></div>
+    </section>
+
+    <aside>
+      <div class="panel">
+        <h2>Ambientes</h2>
+        <ul class="rooms" id="legend"></ul>
+      </div>
+      <div class="panel">
+        <h2>O andar</h2>
+        <div class="specs">
+          <div class="spec"><b>9</b><span>ambientes</span></div>
+          <div class="spec"><b>28</b><span>estações de trabalho</span></div>
+          <div class="spec"><b>5</b><span>agentes de IA · A Legião</span></div>
+          <div class="spec"><b>12</b><span>lugares na reunião</span></div>
+        </div>
+      </div>
+      <p class="note">Piso técnico escuro com grade de LED verde, divisórias de vidro fumê e perfil neon na cor de cada time. Marketing esportivo + inteligência comercial + IA. Nomes da equipe são ilustrativos.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  const TW = 50, TH = 26;
+  const pt = (gx, gy, z = 0) => [(gx - gy) * TW / 2, (gx + gy) * TH / 2 - z];
+  const ps = a => a.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  function shade(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = v => Math.max(0, Math.min(255, Math.round(v * f)));
+    return `rgb(${c((n >> 16) & 255)},${c((n >> 8) & 255)},${c(n & 255)})`;
+  }
+  const poly = (pts, fill, stroke) =>
+    `<polygon points="${ps(pts)}" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="0.7" stroke-linejoin="round"` : ''}/>`;
+  const line = (a, b, c, w = 2) =>
+    `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+
+  // Cubo isométrico: faces leste, sul e topo
+  function box(gx, gy, w, d, z0, h, color, opt = {}) {
+    const z1 = z0 + h, st = opt.stroke || shade(color, 0.55);
+    const top = [pt(gx, gy, z1), pt(gx + w, gy, z1), pt(gx + w, gy + d, z1), pt(gx, gy + d, z1)];
+    const south = [pt(gx, gy + d, z1), pt(gx + w, gy + d, z1), pt(gx + w, gy + d, z0), pt(gx, gy + d, z0)];
+    const east = [pt(gx + w, gy, z1), pt(gx + w, gy + d, z1), pt(gx + w, gy + d, z0), pt(gx + w, gy, z0)];
+    return poly(east, shade(color, 0.78), st) + poly(south, shade(color, 0.62), st) + poly(top, opt.top || color, st);
+  }
+  // Painéis em plano (paredes e objetos fixados nelas)
+  const panelN = (gx, gy, w, z0, z1, fill, st) => poly([pt(gx, gy, z0), pt(gx + w, gy, z0), pt(gx + w, gy, z1), pt(gx, gy, z1)], fill, st);
+  const panelW = (gx, gy, d, z0, z1, fill, st) => poly([pt(gx, gy, z0), pt(gx, gy + d, z0), pt(gx, gy + d, z1), pt(gx, gy, z1)], fill, st);
+  const flat = (gx, gy, w, d, z, fill, st) => poly([pt(gx, gy, z), pt(gx + w, gy, z), pt(gx + w, gy + d, z), pt(gx, gy + d, z)], fill, st);
+
+  const GRAPH = '#2b2d33', GRAPH_L = '#3a3d45', DARK = '#17181c', WHITE = '#e9ece9';
+  const ACCENT = '#39ff14';
+
+  // ---------- Móveis ----------
+  function chair(gx, gy, c, facing = 'n') {
+    let s = box(gx, gy, 0.7, 0.7, 0, 6, shade(c, 0.95));
+    if (facing === 'n') s += box(gx, gy + 0.55, 0.7, 0.15, 6, 8, shade(c, 0.85));
+    if (facing === 's') s = box(gx, gy, 0.7, 0.15, 6, 8, shade(c, 0.85)) + s;
+    if (facing === 'w') s += box(gx + 0.55, gy, 0.15, 0.7, 6, 8, shade(c, 0.85));
+    if (facing === 'e') s = box(gx, gy, 0.15, 0.7, 6, 8, shade(c, 0.85)) + s;
+    return s;
+  }
+  function monitor(gx, gy, z, glow) {
+    return box(gx, gy, 0.7, 0.1, z, 9, DARK) + panelN(gx + 0.05, gy + 0.1, 0.6, z + 1.5, z + 8, glow || ACCENT);
+  }
+  function desk(gx, gy, accent, opt = {}) {
+    const w = opt.w || 2, top = opt.wood || GRAPH;
+    let s = box(gx, gy, w, 1, 0, 13, top, { top: shade(top, 1.2) });
+    s += monitor(gx + 0.3, gy + 0.2, 13, opt.glow);
+    if (w > 1.6) s += box(gx + w - 0.75, gy + 0.35, 0.45, 0.35, 13, 1.5, shade(accent, .9));
+    if (!opt.noChair) s += chair(gx + 0.45, gy + 1.15, accent);
+    return s;
+  }
+  function plant(gx, gy, big) {
+    const k = big ? 1.35 : 1;
+    let s = box(gx, gy, 0.55, 0.55, 0, 7 * k, '#20242a', { top: '#2c3138' });
+    const t = pt(gx + 0.27, gy + 0.27, 7 * k);
+    s += `<ellipse cx="${t[0]}" cy="${t[1] - 9 * k}" rx="${9 * k}" ry="${12 * k}" fill="#1f5a2a"/>`;
+    s += `<ellipse cx="${t[0] - 4 * k}" cy="${t[1] - 5 * k}" rx="${6 * k}" ry="${8 * k}" fill="#2e7d3f"/>`;
+    s += `<ellipse cx="${t[0] + 4 * k}" cy="${t[1] - 12 * k}" rx="${5 * k}" ry="${7 * k}" fill="#3a9850"/>`;
+    return s;
+  }
+  function shelf(gx, gy, w, h, color, books) {
+    let s = box(gx, gy, w, 0.5, 0, h, color);
+    const rows = Math.floor(h / 11);
+    const pal = books || ['#39ff14', '#2f5d86', '#c8963a', '#3f6e47', '#6a4a8a'];
+    for (let r = 0; r < rows; r++) {
+      const z = 3 + r * 11;
+      for (let i = 0; i < w * 4 - 1; i++) {
+        const x = gx + 0.12 + i * 0.25;
+        s += panelN(x, gy + 0.5, 0.18, z, z + 7 + (i % 3), pal[(i + r) % pal.length], 'rgba(0,0,0,.35)');
+      }
+    }
+    return s;
+  }
+  function sofa(gx, gy, w, c, facing = 'n') {
+    let s = '';
+    if (facing === 'n') {
+      s += box(gx, gy, w, 0.9, 0, 7, c);
+      s += box(gx, gy + 0.7, w, 0.3, 7, 8, shade(c, 0.9));
+      s += box(gx - 0.2, gy, 0.2, 1, 0, 11, shade(c, 0.85)) + box(gx + w, gy, 0.2, 1, 0, 11, shade(c, 0.85));
+    } else {
+      s += box(gx, gy, 0.3, w, 7, 8, shade(c, 0.9));
+      s += box(gx, gy, 0.9, w, 0, 7, c);
+      s += box(gx, gy - 0.2, 1, 0.2, 0, 11, shade(c, 0.85)) + box(gx, gy + w, 1, 0.2, 0, 11, shade(c, 0.85));
+    }
+    return s;
+  }
+  function avatar(gx, gy, shirt, o = {}) {
+    const skin = o.skin || '#e2b48b', hair = o.hair || '#2b2016', pants = o.pants || '#1e2026';
+    const b = pt(gx, gy, 0);
+    let s = `<ellipse cx="${b[0]}" cy="${b[1]}" rx="8" ry="4" fill="rgba(0,0,0,.35)"/>`;
+    s += box(gx - 0.15, gy - 0.15, 0.3, 0.3, 0, 7, pants);
+    s += box(gx - 0.2, gy - 0.2, 0.4, 0.4, 7, 9, shirt);
+    const h = pt(gx, gy, 21);
+    if (o.long) s += `<rect x="${h[0] - 6.5}" y="${h[1] - 4}" width="13" height="12" rx="5" fill="${hair}"/>`;
+    s += `<circle cx="${h[0]}" cy="${h[1]}" r="6.2" fill="${skin}"/>`;
+    s += `<path d="M${h[0] - 6.4} ${h[1] - 0.5}a6.4 6.4 0 0 1 12.8 0c-3-2.2-9.8-2.2-12.8 0z" fill="${hair}"/>`;
+    s += `<circle cx="${h[0] - 2.2}" cy="${h[1] + 0.8}" r=".9" fill="#1a1109"/><circle cx="${h[0] + 2.2}" cy="${h[1] + 0.8}" r=".9" fill="#1a1109"/>`;
+    return `<g class="av" style="animation-delay:${(o.delay || 0)}s">${s}</g>`;
+  }
+  // robô/agente de IA (para A Legião)
+  function bot(gx, gy, c, o = {}) {
+    const b = pt(gx, gy, 0);
+    let s = `<ellipse cx="${b[0]}" cy="${b[1]}" rx="8" ry="4" fill="rgba(0,0,0,.35)"/>`;
+    s += box(gx - 0.18, gy - 0.18, 0.36, 0.36, 0, 9, '#23262c', { top: '#2f333a' });
+    const h = pt(gx, gy, 20);
+    s += `<rect x="${h[0] - 6}" y="${h[1] - 5}" width="12" height="11" rx="3.5" fill="#101216" stroke="${c}" stroke-width="1.3"/>`;
+    s += `<rect class="blink" x="${h[0] - 3.6}" y="${h[1] - 1.5}" width="7.2" height="2.6" rx="1.3" fill="${c}" style="animation-delay:${o.delay || 0}s"/>`;
+    s += `<line x1="${h[0]}" y1="${h[1] - 5}" x2="${h[0]}" y2="${h[1] - 9}" stroke="${c}" stroke-width="1.2"/><circle cx="${h[0]}" cy="${h[1] - 10}" r="1.6" fill="${c}"/>`;
+    return `<g class="av" style="animation-delay:${(o.delay || 0)}s">${s}</g>`;
+  }
+  function rug(r, inset, color) {
+    const x0 = r.x + inset, y0 = r.y + inset, x1 = r.x + r.w - inset, y1 = r.y + r.d - inset;
+    return poly([pt(x0, y0, .4), pt(x1, y0, .4), pt(x1, y1, .4), pt(x0, y1, .4)], shade(color, 0.42), shade(color, .6)) +
+      poly([pt(x0 + .3, y0 + .3, .5), pt(x1 - .3, y0 + .3, .5), pt(x1 - .3, y1 - .3, .5), pt(x0 + .3, y1 - .3, .5)], 'none', shade(color, 1.0));
+  }
+  function wallTV(gx, gy, w, z0, h, screen) {
+    return panelN(gx, gy + 0.02, w, z0, z0 + h, '#0a0b0d', '#000') + panelN(gx + 0.12, gy + 0.03, w - 0.24, z0 + 2, z0 + h - 2, screen || '#1f6fae');
+  }
+  // texto deitado na parede norte (segue o plano isométrico)
+  function wallTextN(gx, gy, z, txt, fill, size, font) {
+    const a = pt(gx, gy, z);
+    return `<text x="${a[0]}" y="${a[1]}" text-anchor="middle" font-family="${font || 'Silkscreen, monospace'}" font-size="${size || 7}" fill="${fill}" transform="skewY(27) translate(0,${-(a[0]) * 0.51})">${txt}</text>`;
+  }
+
+  // ---------- Salas ----------
+  const ROOMS = [
+    { id: 'recepcao', n: 1, name: 'Recepção', team: 'Atendimento', who: 'Recepção · marca e primeiro contato', cap: '6 lugares', color: '#39ff14', x: 0, y: 0, w: 5, d: 5,
+      desc: 'Balcão iluminado com o letreiro AXIS em neon, vitrine de troféus dos clientes esportivos e sofá de espera para quem chega para fechar contrato.' },
+    { id: 'dono', n: 2, name: 'Sala do Dono', team: 'Diretoria', who: 'Vitor · Fundador', cap: '1 + 2 visitas', color: '#ffd23f', x: 5, y: 0, w: 5, d: 5,
+      desc: 'Mesa executiva, televisão na parede com o painel da agência e um quadro de metas com os números do mês. Sofá para conversas reservadas e vista da cidade.' },
+    { id: 'ia', n: 3, name: 'Núcleo de IA · A Legião', team: 'Inteligência', who: 'Planejador · Pesquisador · Implementador · Revisor-QA · Segurança', cap: '5 agentes', color: '#b14bff', x: 10, y: 0, w: 5, d: 5,
+      desc: 'O cérebro da AXIS: rack de servidores e cinco estações onde A Legião planeja, pesquisa, implementa, revisa e protege cada automação e campanha.' },
+    { id: 'marketing', n: 4, name: 'Marketing', team: 'Time de Marketing', who: '4 pessoas · Conteúdo, tráfego e design', cap: '4 estações', color: '#ff7a1a', x: 0, y: 5, w: 5, d: 5,
+      desc: 'Mural de campanhas, set com ring light para gravar conteúdo esportivo e telas grandes para editar vídeos e criativos de captação.' },
+    { id: 'reuniao', n: 5, name: 'Sala de Reunião', team: 'Uso compartilhado', who: 'Reservável por todos os times', cap: '12 lugares', color: '#2ec4ff', x: 5, y: 5, w: 5, d: 5,
+      desc: 'Mesa para 12, TV de 85" para apresentar propostas e dashboards, e quadro de vidro para desenhar o funil de leads com o cliente.' },
+    { id: 'comercial', n: 6, name: 'Comercial', team: 'Time Comercial', who: '6 pessoas · Prospecção e fechamento', cap: '6 estações', color: '#ffc400', x: 10, y: 5, w: 5, d: 5,
+      desc: 'Bancadas com headset para prospecção ativa, painel de metas de matrículas e o sino que toca a cada novo contrato fechado.' },
+    { id: 'juridico', n: 7, name: 'Jurídico', team: 'Time Jurídico', who: '3 pessoas · Contratos e LGPD', cap: '3 estações', color: '#6c7bff', x: 0, y: 10, w: 5, d: 5,
+      desc: 'Estantes do chão ao teto com contratos e termos, arquivo deslizante e mesa de revisão para tratar dados, permissões e responsabilidades.' },
+    { id: 'financeiro', n: 8, name: 'Financeiro', team: 'Time Financeiro', who: '3 pessoas · Faturamento, repasses e caixa', cap: '3 estações', color: '#19e39a', x: 5, y: 10, w: 5, d: 5,
+      desc: 'Estações com monitor duplo, cofre, arquivo de notas e painel com o fluxo de caixa e o ticket médio por cliente da carteira.' },
+    { id: 'jogos', n: 9, name: 'Sala de Jogos', team: 'Descompressão', who: 'Aberta a todos', cap: 'livre', color: '#ff3d81', x: 10, y: 10, w: 5, d: 5,
+      desc: 'Pebolim, sinuca, fliperama, pufes e videogame na TV para comemorar as metas batidas e recarregar entre as entregas.' },
+  ];
+
+  function furnish(r) {
+    const X = r.x, Y = r.y, c = r.color;
+    let s = '';
+    switch (r.id) {
+      case 'recepcao': {
+        // letreiro neon na parede
+        s += panelN(X + 1.2, Y + 0.02, 2.6, 40, 68, '#0b0d0b', '#060706');
+        s += wallTextN(X + 2.5, Y, 61, 'AXIS', ACCENT, 15, 'Space Grotesk, sans-serif');
+        s += plant(X + 0.3, Y + 0.3, true);
+        // vitrine de troféus
+        s += box(X + 0.1, Y + 1.4, 0.5, 2.4, 0, 26, '#1b1d22', { top: '#24262c' });
+        [10, 18].forEach(z => { const p = pt(X + 0.35, Y + 2.0, z); s += `<circle cx="${p[0]}" cy="${p[1] - 3}" r="2.4" fill="#ffd23f"/><rect x="${p[0] - 1}" y="${p[1] - 1}" width="2" height="3" fill="#caa233"/>`; });
+        s += box(X + 1.2, Y + 1.4, 2.6, 0.9, 0, 15, '#1d1f24', { top: '#2a2d34' });
+        s += box(X + 3.5, Y + 1.4, 0.9, 1.9, 0, 15, '#1d1f24', { top: '#2a2d34' });
+        s += line(pt(X + 1.2, Y + 2.3, 1), pt(X + 3.8, Y + 2.3, 1), ACCENT, 1.4);
+        s += monitor(X + 2.4, Y + 1.55, 15, '#cdfdbf');
+        s += avatar(X + 2.2, Y + 0.95, c, { hair: '#4a3320', long: true, delay: .4 });
+        s += sofa(X + 0.4, Y + 3.0, 1.6, '#20242a', 'w');
+        s += box(X + 1.6, Y + 3.4, 0.8, 0.8, 0, 6, '#2a2d34');
+        s += avatar(X + 2.9, Y + 3.9, '#2f6f55', { hair: '#1c1c1c', delay: 1.1 });
+        s += plant(X + 4.3, Y + 4.2);
+        break;
+      }
+      case 'dono': {
+        // televisão na parede
+        s += wallTV(X + 0.5, Y, 1.7, 34, 22, '#123a2a');
+        s += wallTextN(X + 1.35, Y, 45, 'AXIS · LIVE', '#7cff5c', 5);
+        // quadro de metas
+        s += panelN(X + 2.9, Y + 0.02, 1.7, 30, 56, '#0e100e', '#060706');
+        s += wallTextN(X + 3.75, Y, 51, 'METAS', ACCENT, 6);
+        [0.55, 0.78, 0.95].forEach((v, i) => { s += panelN(X + 3.05 + i * 0.5, Y + 0.03, 0.3, 33, 33 + 15 * v, i === 2 ? ACCENT : '#2a5a22'); });
+        s += rug(r, 1.1, '#2a7a1f');
+        s += box(X + 1.5, Y + 1.7, 2.4, 1.1, 0, 14, '#23252b', { top: '#2f323a' });
+        s += line(pt(X + 1.5, Y + 2.8, 14.1), pt(X + 3.9, Y + 2.8, 14.1), ACCENT, 1.4);
+        s += monitor(X + 2.2, Y + 1.85, 14, '#b8ffd0');
+        s += box(X + 3.2, Y + 2.05, 0.4, 0.3, 14, 1.5, WHITE);
+        s += chair(X + 2.3, Y + 1.0, '#141618', 's');
+        s += avatar(X + 2.6, Y + 1.25, '#1f8f50', { hair: '#241709', delay: 0 });
+        s += chair(X + 1.8, Y + 3.2, '#caa233') + chair(X + 3.0, Y + 3.2, '#caa233');
+        s += sofa(X + 0.4, Y + 1.6, 1.8, '#26292f', 'w');
+        s += plant(X + 4.3, Y + 0.6, true);
+        s += plant(X + 4.3, Y + 4.2);
+        break;
+      }
+      case 'ia': {
+        // rack de servidores na parede norte
+        s += box(X + 0.5, Y + 0.05, 1.0, 0.6, 0, 42, '#0d0f14', { top: '#16181e' });
+        for (let i = 0; i < 7; i++) { s += panelN(X + 0.6, Y + 0.04, 0.8, 5 + i * 5.2, 8.6 + i * 5.2, '#101318', '#05060a'); s += panelN(X + 1.28, Y + 0.03, 0.08, 6 + i * 5.2, 7.6 + i * 5.2, i % 2 ? c : ACCENT); }
+        // painel holográfico central na parede
+        s += panelN(X + 2.0, Y + 0.02, 2.4, 20, 46, '#0c0a14', '#060510');
+        const net = [[0.4, 0.3], [0.9, 0.55], [1.4, 0.3], [1.9, 0.6], [0.65, 0.8], [1.65, 0.85]].map(([u, v]) => pt(X + 2.1 + u, Y + 0.01, 24 + v * 18));
+        for (let i = 0; i < net.length; i++) for (let j = i + 1; j < net.length; j++) if (Math.hypot(net[i][0] - net[j][0], net[i][1] - net[j][1]) < 34) s += `<line x1="${net[i][0].toFixed(1)}" y1="${net[i][1].toFixed(1)}" x2="${net[j][0].toFixed(1)}" y2="${net[j][1].toFixed(1)}" stroke="${c}" stroke-width=".7" opacity=".55"/>`;
+        net.forEach((p, i) => s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2" fill="${i % 2 ? ACCENT : c}"/>`);
+        s += rug(r, 1.0, '#5a2a8a');
+        // cinco estações da Legião
+        const squad = [
+          [1.0, 1.7, c, '#c9a3ff'], [2.2, 1.7, ACCENT, '#b8ffd0'],
+          [3.4, 1.7, c, '#c9a3ff'], [1.6, 3.3, ACCENT, '#b8ffd0'], [2.9, 3.3, c, '#c9a3ff']
+        ];
+        squad.forEach(([gx, gy, ac, gl], i) => {
+          s += box(X + gx - 0.05, Y + gy, 1.0, 0.9, 0, 12, '#1b1d23', { top: '#262930' });
+          s += monitor(X + gx + 0.15, Y + gy + 0.12, 12, gl);
+          s += bot(X + gx + 0.45, Y + gy + 1.05, ac, { delay: i * 0.5 });
+        });
+        // mesa holo central
+        s += box(X + 3.3, Y + 3.2, 1.1, 1.1, 0, 9, '#15131d', { top: '#1d1a28' });
+        const hc = pt(X + 3.85, Y + 3.75, 9); s += `<ellipse class="blink" cx="${hc[0]}" cy="${hc[1] - 3}" rx="10" ry="5" fill="none" stroke="${c}" stroke-width="1.3"/><circle cx="${hc[0]}" cy="${hc[1] - 6}" r="2.4" fill="${c}"/>`;
+        break;
+      }
+      case 'marketing': {
+        // mural de campanhas
+        s += panelW(X + 0.02, Y + 0.6, 3.6, 8, 32, '#15171c', '#05060a');
+        const cards = ['#ff7a1a', '#2ec4ff', '#39ff14', '#ff3d81', '#19e39a', '#b14bff'];
+        cards.forEach((col, i) => {
+          const gy = Y + 0.85 + (i % 3) * 1.1, z = 12 + Math.floor(i / 3) * 10;
+          s += panelW(X + 0.03, gy, 0.8, z, z + 7, col);
+        });
+        s += rug(r, 1.0, '#b35512');
+        // set de gravação com ring light
+        s += box(X + 3.55, Y + 0.3, 0.2, 0.2, 0, 30, '#2a2d34');
+        const rl = pt(X + 3.65, Y + 0.4, 30); s += `<circle cx="${rl[0]}" cy="${rl[1]}" r="8" fill="none" stroke="#fff6cc" stroke-width="3"/>`;
+        s += desk(X + 1.2, Y + 0.6, '#ff7a1a', { glow: '#ffd3a8' });
+        s += desk(X + 3.0, Y + 0.6, '#ff7a1a', { w: 1.6, glow: '#b9e7ff' });
+        s += desk(X + 1.2, Y + 2.8, '#ff7a1a', { glow: '#ffc0e8' });
+        s += desk(X + 3.0, Y + 2.8, '#ff7a1a', { w: 1.6, glow: '#cdfdbf' });
+        s += avatar(X + 1.85, Y + 1.95, '#ff7a1a', { hair: '#7a3a12', long: true, delay: .2 });
+        s += avatar(X + 3.6, Y + 1.95, '#23262c', { hair: '#111', delay: 1.4 });
+        s += avatar(X + 1.85, Y + 4.15, '#2f6f55', { hair: '#4a3320', delay: .9 });
+        s += plant(X + 4.4, Y + 4.3);
+        break;
+      }
+      case 'reuniao': {
+        s += wallTV(X + 1.4, Y, 2.2, 24, 26, '#15484a');
+        s += wallTextN(X + 2.5, Y, 37, 'FUNIL DE LEADS', '#bdf6ff', 6);
+        s += panelW(X + 0.02, Y + 1.2, 2.2, 14, 34, '#0e1012', '#05060a');
+        s += line(pt(X, Y + 1.5, 20), pt(X, Y + 3.0, 28), '#2ec4ff', 1.4) + line(pt(X, Y + 1.6, 26), pt(X, Y + 2.9, 22), '#2ec4ff', 1.2);
+        s += rug(r, 0.7, '#1f6f92');
+        for (let i = 0; i < 4; i++) s += chair(X + 1.25 + i * 0.75, Y + 1.0, '#141c24', 's');
+        s += box(X + 1.1, Y + 1.7, 3.1, 1.5, 0, 12, '#1d2026', { top: '#272b33' });
+        s += box(X + 2.2, Y + 2.2, 0.9, 0.5, 12, 0.8, '#2ec4ff');
+        s += chair(X + 0.4, Y + 2.1, '#141c24', 'e');
+        s += chair(X + 4.35, Y + 2.1, '#141c24', 'w');
+        for (let i = 0; i < 4; i++) s += chair(X + 1.25 + i * 0.75, Y + 3.35, '#141c24', 'n');
+        s += avatar(X + 4.7, Y + 2.45, '#2ec4ff', { hair: '#241709', delay: .3 });
+        s += avatar(X + 1.6, Y + 3.7, '#2f6f55', { hair: '#4a3320', long: true, delay: 1.2 });
+        s += plant(X + 0.3, Y + 4.3);
+        break;
+      }
+      case 'comercial': {
+        // painel de metas de matrículas
+        s += panelN(X + 0.5, Y + 0.02, 2.6, 18, 40, '#0e100e', '#05060a');
+        s += wallTextN(X + 1.8, Y, 44, 'METAS', '#ffe79a', 6);
+        [0.6, 0.85, 0.45, 0.95].forEach((v, i) => {
+          s += panelN(X + 0.8 + i * 0.55, Y + 0.03, 0.35, 21, 21 + 15 * v, i === 3 ? '#ffc400' : '#7a5e10');
+        });
+        // sino de venda
+        s += box(X + 3.7, Y + 0.1, 0.5, 0.3, 30, 1, '#1a1c22');
+        const bell = pt(X + 3.95, Y + 0.25, 33); s += `<path d="M${bell[0] - 4} ${bell[1]}a4 5 0 0 1 8 0z" fill="#ffc400"/><circle cx="${bell[0]}" cy="${bell[1] + 1.5}" r="1.3" fill="#caa000"/>`;
+        s += rug(r, 0.8, '#a67e00');
+        for (let row = 0; row < 2; row++) {
+          const y = Y + 1.0 + row * 2.0;
+          s += box(X + 0.7, y, 3.6, 0.9, 0, 13, '#1d2026', { top: '#272b33' });
+          for (let i = 0; i < 3; i++) s += monitor(X + 0.95 + i * 1.15, y + 0.15, 13, i % 2 ? '#ffe7a1' : '#cdfdbf');
+          for (let i = 0; i < 3; i++) s += chair(X + 1.0 + i * 1.15, y + 1.05, '#ffc400');
+        }
+        s += avatar(X + 1.35, Y + 2.25, '#ffc400', { hair: '#241709', delay: .1 });
+        s += avatar(X + 3.65, Y + 2.25, '#2f6f55', { hair: '#4a3320', long: true, delay: .8 });
+        s += avatar(X + 2.5, Y + 4.25, '#23262c', { hair: '#111', delay: 1.6 });
+        s += plant(X + 4.4, Y + 4.4);
+        break;
+      }
+      case 'juridico': {
+        // estantes altas na parede oeste
+        for (let i = 0; i < 3; i++) {
+          const gy = Y + 0.4 + i * 1.3;
+          s += box(X + 0.1, gy, 0.5, 1.2, 0, 44, '#1a1c22');
+          for (let r2 = 0; r2 < 4; r2++) {
+            const z = 4 + r2 * 10;
+            for (let k = 0; k < 4; k++) s += panelW(X + 0.61, gy + 0.1 + k * 0.27, 0.2, z, z + 7, ['#3a3f6a', '#2f3f6a', '#6c7bff', '#454a7a'][(k + r2 + i) % 4], 'rgba(0,0,0,.4)');
+          }
+        }
+        s += rug(r, 1.1, '#3a3f8c');
+        s += box(X + 1.6, Y + 1.5, 2.4, 1.2, 0, 13, '#23252b', { top: '#2f323a' });
+        s += box(X + 2.0, Y + 1.7, 0.6, 0.45, 13, 3, WHITE) + box(X + 2.8, Y + 1.75, 0.5, 0.4, 13, 2, '#cfd3e8');
+        s += monitor(X + 3.1, Y + 1.6, 13, '#cdd2ff');
+        s += chair(X + 2.4, Y + 0.8, '#16182a', 's');
+        s += avatar(X + 2.75, Y + 1.05, '#6c7bff', { hair: '#2b2016', delay: .5 });
+        s += chair(X + 2.0, Y + 3.0, '#3a3f8c') + chair(X + 3.0, Y + 3.0, '#3a3f8c');
+        s += box(X + 3.9, Y + 3.8, 0.7, 0.8, 0, 20, '#2a2d34');
+        s += plant(X + 1.0, Y + 4.3);
+        break;
+      }
+      case 'financeiro': {
+        // painel de fluxo de caixa
+        s += panelN(X + 0.6, Y + 0.02, 2.2, 14, 36, '#0e100e', '#05060a');
+        const pts = [[0, 0.3], [0.2, 0.45], [0.4, 0.4], [0.6, 0.65], [0.8, 0.6], [1, 0.85]].map(([u, v]) => pt(X + 0.8 + u * 1.8, Y + 0.01, 17 + v * 16));
+        s += `<polyline points="${ps(pts)}" fill="none" stroke="#19e39a" stroke-width="2" stroke-linejoin="round"/>`;
+        s += wallTextN(X + 1.7, Y, 20, 'CAIXA', '#8ff2cd', 5);
+        s += box(X + 3.4, Y + 0.15, 1.0, 0.8, 0, 18, '#1b1d22');
+        const d = pt(X + 3.9, Y + 0.95, 9); s += `<circle cx="${d[0]}" cy="${d[1]}" r="3" fill="#19e39a"/>`;
+        s += rug(r, 1.0, '#13a673');
+        s += desk(X + 1.0, Y + 1.4, '#19e39a', { glow: '#c3fbe6' });
+        s += monitor(X + 1.75, Y + 1.6, 13, '#c3fbe6');
+        s += desk(X + 1.0, Y + 3.2, '#19e39a', { glow: '#c3fbe6' });
+        s += box(X + 3.6, Y + 1.6, 0.8, 0.6, 0, 22, '#2a2d34') + box(X + 3.6, Y + 2.3, 0.8, 0.6, 0, 22, '#2a2d34');
+        s += avatar(X + 1.65, Y + 2.65, '#19e39a', { hair: '#111', long: true, skin: '#c6936b', delay: .6 });
+        s += avatar(X + 3.2, Y + 4.0, '#2f6f55', { hair: '#4a3320', delay: 1.3 });
+        s += plant(X + 4.4, Y + 4.4);
+        break;
+      }
+      case 'jogos': {
+        s += wallTV(X + 2.6, Y, 1.8, 18, 20, '#5a1f45');
+        s += box(X + 0.4, Y + 0.3, 0.9, 0.8, 0, 30, '#1a1226');
+        s += panelN(X + 0.5, Y + 1.1, 0.7, 14, 26, '#39ffe0');
+        s += box(X + 0.4, Y + 1.1, 0.9, 0.15, 10, 3, '#ff7a1a');
+        s += box(X + 1.5, Y + 0.3, 0.9, 0.8, 0, 30, '#261420');
+        s += panelN(X + 1.6, Y + 1.1, 0.7, 14, 26, '#ffd36b');
+        s += rug(r, 0.9, '#b32a5c');
+        // mesa de sinuca
+        s += box(X + 1.2, Y + 2.0, 2.8, 1.5, 0, 10, '#2a1a10');
+        s += flat(X + 1.35, Y + 2.15, 2.5, 1.2, 10.4, '#1f6f45', '#154a2f');
+        [['#e9ece9', 1.8, 2.6], ['#ffc400', 2.6, 2.5], ['#ff3d81', 2.9, 2.85], ['#141414', 3.2, 2.5], ['#2ec4ff', 3.4, 2.9]].forEach(([col, gx, gy]) => {
+          const b = pt(X + gx, Y + gy, 12); s += `<circle cx="${b[0]}" cy="${b[1]}" r="2.2" fill="${col}"/>`;
+        });
+        s += line(pt(X + 0.9, Y + 2.3, 13), pt(X + 2.0, Y + 2.7, 11), '#c79b5a', 1.6);
+        s += avatar(X + 0.75, Y + 2.6, '#ff3d81', { hair: '#241709', delay: .2 });
+        s += avatar(X + 4.3, Y + 3.2, '#ff7a1a', { hair: '#4a3320', long: true, delay: 1 });
+        // pufes
+        [[1.4, 4.2, '#ff7a1a'], [2.6, 4.3, '#2ec4ff'], [3.7, 4.2, '#39ff14']].forEach(([gx, gy, col]) => {
+          const b = pt(X + gx, Y + gy, 0);
+          s += `<ellipse cx="${b[0]}" cy="${b[1] - 4}" rx="13" ry="8" fill="${shade(col, .55)}"/><ellipse cx="${b[0]}" cy="${b[1] - 8}" rx="11" ry="6" fill="${col}"/>`;
+        });
+        s += box(X + 4.3, Y + 1.2, 0.6, 0.6, 0, 16, '#1d2026');
+        break;
+      }
+    }
+    return s;
+  }
+
+  // ---------- Montagem da cena ----------
+  const N = 15;
+  let out = '';
+  // laje do andar
+  out += box(0, 0, N, N, -10, 10, '#101010', { top: '#0c0c0c' });
+  // piso técnico com grade de LED
+  for (let gx = 0; gx < N; gx++) for (let gy = 0; gy < N; gy++) {
+    out += poly([pt(gx, gy), pt(gx + 1, gy), pt(gx + 1, gy + 1), pt(gx, gy + 1)], (gx + gy) % 2 ? '#141414' : '#101010', 'rgba(57,255,20,.10)');
+  }
+  // fachadas de vidro do prédio (norte e oeste) — cidade à noite
+  const WH = 108;
+  out += panelN(0, 0, N, 0, WH, '#0a0d10', '#05070a');
+  out += panelW(0, 0, N, 0, WH, '#090b0e', '#05070a');
+  out += panelN(0, 0, N, 0, 12, '#141414') + panelW(0, 0, N, 0, 12, '#121212');
+  for (let i = 0; i < 7; i++) {
+    const a = 0.35 + i * 2.1;
+    out += panelN(a, 0, 1.7, 40, 94, '#0c1016', '#0a0c0f');
+    out += panelN(a + 0.1, 0, 1.5, 42, 92, 'url(#sky)');
+    out += line(pt(a + 0.85, 0, 42), pt(a + 0.85, 0, 92), '#0a0c0f', 1.5);
+    out += panelW(0, a, 1.7, 40, 94, '#0b0e13', '#0a0c0f');
+    out += panelW(0, a + 0.1, 1.5, 42, 92, 'url(#sky2)');
+    out += line(pt(0, a + 0.85, 42), pt(0, a + 0.85, 92), '#0a0c0f', 1.5);
+    // luzes da cidade à noite
+    for (let k = 0; k < 5; k++) {
+      const p = pt(a + 0.3 + (k % 2) * 0.7, 0, 50 + k * 8); out += `<rect x="${(p[0]-1).toFixed(1)}" y="${(p[1]).toFixed(1)}" width="2" height="2.4" fill="${k % 3 ? '#2f4a3a' : '#39ff14'}" opacity="${0.4 + (k % 3) * 0.2}"/>`;
+      const q = pt(0, a + 0.3 + (k % 2) * 0.7, 50 + k * 8); out += `<rect x="${(q[0]-1).toFixed(1)}" y="${(q[1]).toFixed(1)}" width="2" height="2.4" fill="${k % 2 ? '#30414a' : '#7cff5c'}" opacity="${0.35 + (k % 2) * 0.25}"/>`;
+    }
+  }
+  out += line(pt(0, 0, WH), pt(N, 0, WH), ACCENT, 4) + line(pt(0, 0, WH), pt(0, N, WH), ACCENT, 4);
+
+  const PART = 30;
+  const badges = [];
+  [...ROOMS].sort((a, b) => (a.x + a.y) - (b.x + b.y)).forEach(r => {
+    let g = '';
+    // divisórias de vidro fumê com perfil neon na cor do time
+    if (r.y > 0) {
+      g += panelN(r.x, r.y, r.w, 0, PART, 'rgba(32,38,44,.72)', '#0c0e11');
+      g += line(pt(r.x, r.y, PART), pt(r.x + r.w, r.y, PART), r.color, 3);
+    }
+    if (r.x > 0) {
+      g += panelW(r.x, r.y, r.d, 0, PART, 'rgba(26,31,36,.72)', '#0c0e11');
+      g += line(pt(r.x, r.y, PART), pt(r.x, r.y + r.d, PART), r.color, 3);
+    }
+    g += furnish(r);
+    const hit = [pt(r.x, r.y), pt(r.x + r.w, r.y), pt(r.x + r.w, r.y + r.d), pt(r.x, r.y + r.d)];
+    g += `<polygon class="hit" points="${ps(hit)}" stroke="none"/>`;
+    out += `<g class="room" data-id="${r.id}" tabindex="0" role="button" aria-label="${r.n}. ${r.name} — ${r.who}">${g}</g>`;
+    const b = pt(r.x + r.w - 0.35, r.y + r.d - 0.35, 2);
+    badges.push(`<g class="badge" data-id="${r.id}" pointer-events="none"><ellipse cx="${b[0]}" cy="${b[1] + 2}" rx="12" ry="5" fill="rgba(0,0,0,.4)"/><rect x="${b[0] - 11}" y="${b[1] - 20}" width="22" height="20" rx="6" fill="${r.color}" stroke="#050505" stroke-width="1.5"/><text x="${b[0]}" y="${b[1] - 6}" text-anchor="middle" fill="#050505">${r.n}</text></g>`);
+  });
+  out += badges.join('');
+
+  const defs = `<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1f1a"/><stop offset="1" stop-color="#05080c"/></linearGradient>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#08171a"/><stop offset="1" stop-color="#04070a"/></linearGradient>
+  </defs>`;
+  const svg = document.getElementById('scene');
+  svg.innerHTML = defs + out;
+
+  // ---------- Interação ----------
+  const tip = document.getElementById('tip');
+  const stage = document.querySelector('.stage');
+  const legend = document.getElementById('legend');
+  const byId = Object.fromEntries(ROOMS.map(r => [r.id, r]));
+  let focused = null;
+
+  ROOMS.forEach(r => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button type="button" id="btn-${r.id}" data-id="${r.id}"><span class="num" style="background:${r.color}">${r.n}</span><span class="rname">${r.name}<span class="rteam">${r.who}</span></span><span class="cap">${r.cap}</span></button>`;
+    legend.appendChild(li);
+  });
+
+  function showTip(r, x, y) {
+    tip.innerHTML = `<h3>${r.n}. ${r.name}</h3><div class="who">${r.team} · ${r.who}</div><p>${r.desc}</p>`;
+    tip.hidden = false;
+    const sr = stage.getBoundingClientRect();
+    let left = x - sr.left + 16, top = y - sr.top + 16;
+    if (left + 268 > sr.width) left = x - sr.left - 272;
+    if (top + tip.offsetHeight > sr.height) top = Math.max(8, y - sr.top - tip.offsetHeight - 12);
+    tip.style.left = Math.max(8, left) + 'px';
+    tip.style.top = top + 'px';
+  }
+  function hideTip() { tip.hidden = true; }
+  function setFocus(id) {
+    focused = focused === id ? null : id;
+    svg.classList.toggle('has-focus', !!focused);
+    svg.querySelectorAll('.room').forEach(g => g.classList.toggle('on', g.dataset.id === focused));
+    svg.querySelectorAll('.badge').forEach(g => g.style.opacity = !focused || g.dataset.id === focused ? 1 : .3);
+    legend.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === focused));
+    if (!focused) hideTip();
+  }
+  function centerOf(id) {
+    const g = svg.querySelector(`.room[data-id="${id}"] .hit`).getBoundingClientRect();
+    return [g.left + g.width / 2, g.top + g.height / 3];
+  }
+
+  svg.querySelectorAll('.room').forEach(g => {
+    const r = byId[g.dataset.id];
+    g.addEventListener('mousemove', e => showTip(r, e.clientX, e.clientY));
+    g.addEventListener('mouseleave', () => { if (focused !== r.id) hideTip(); });
+    g.addEventListener('click', e => { setFocus(r.id); if (focused) showTip(r, e.clientX, e.clientY); });
+    g.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFocus(r.id); if (focused) showTip(r, ...centerOf(r.id)); }
+    });
+  });
+  legend.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const r = byId[b.dataset.id];
+    setFocus(r.id);
+    if (focused) { svg.closest('.stage').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); showTip(r, ...centerOf(r.id)); }
+  });
+})();
+</script>

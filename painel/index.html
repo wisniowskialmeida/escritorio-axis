@@ -1,0 +1,503 @@
+<title>Central AXIS Labs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Silkscreen&display=swap">
+<style>
+/* Layout: cabeçalho com marca + KPIs globais, barra lateral de agentes à esquerda, painel do agente à direita (empilha no celular). Tema único escuro neon AXIS. */
+:root {
+  --bg: #080808;
+  --panel: #101010;
+  --panel-2: #161616;
+  --panel-3: #1c1c1d;
+  --line: #262626;
+  --fg: #f5f5f5;
+  --muted: #9aa49a;
+  --faint: #6b726b;
+  --accent: #39ff14;
+  --accent-soft: #7cff5c;
+  --sev-alta: #ff4d4d;
+  --sev-media: #ffc400;
+  --sev-baixa: #39ff14;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-pixel: "Silkscreen", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font-family: var(--font-body);
+  font-size: 15px; line-height: 1.5;
+  padding-block: 22px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: radial-gradient(1100px 520px at 80% -12%, #0d2208 0%, transparent 58%), var(--bg);
+  min-height: 100%;
+}
+.shell { max-width: 1280px; margin: 0 auto; display: grid; gap: 18px; }
+
+/* Cabeçalho */
+header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.logo { width: 54px; height: 54px; flex: none; border-radius: 14px; box-shadow: 0 0 0 1px var(--line), 0 0 22px rgba(57,255,20,.18); }
+.brand { min-width: 0; flex: 1 1 260px; }
+.eyebrow { font-family: var(--font-pixel); font-size: 10px; letter-spacing: .14em; color: var(--accent-soft); text-transform: uppercase; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3.2vw, 32px); line-height: 1.05; margin: 3px 0 2px; letter-spacing: -.02em; }
+h1 em { font-style: normal; color: var(--accent); }
+.tagline { color: var(--muted); font-size: 13px; margin: 0; }
+
+/* KPIs globais */
+.kpibar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 680px) { .kpibar { grid-template-columns: repeat(2, 1fr); } }
+.gk { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; min-width: 0; }
+.gk b { display: block; font-family: var(--font-display); font-size: clamp(20px, 3vw, 26px); color: var(--accent-soft); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.gk span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+/* Grade principal */
+.layout { display: grid; grid-template-columns: 256px minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Barra lateral */
+.nav { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px; position: sticky; top: env(safe-area-inset-top, 0px); }
+@media (max-width: 860px) { .nav { position: static; } }
+.navgroup { margin-bottom: 10px; }
+.navgroup:last-child { margin-bottom: 0; }
+.navtitle { font-family: var(--font-pixel); font-size: 10px; letter-spacing: .1em; color: var(--faint); text-transform: uppercase; padding: 6px 8px 4px; }
+.navlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+@media (max-width: 860px) { .navlist { grid-auto-flow: column; grid-auto-columns: minmax(180px, 1fr); overflow-x: auto; gap: 8px; padding-bottom: 4px; } }
+.navbtn { width: 100%; display: grid; grid-template-columns: 10px minmax(0,1fr) auto; align-items: center; gap: 9px; text-align: left; padding: 8px 10px; border-radius: 11px; border: 1px solid transparent; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+.navbtn:hover { background: var(--panel-2); }
+.navbtn.on { background: var(--panel-2); border-color: var(--line); }
+.navbtn:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 1px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.nmeta { min-width: 0; }
+.nname { display: block; font-weight: 600; font-size: 14px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.narea { display: block; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert { font-family: var(--font-pixel); font-size: 10px; min-width: 20px; height: 20px; padding: 0 5px; display: grid; place-items: center; border-radius: 7px; background: #2a0f0f; color: var(--sev-alta); border: 1px solid #5a1f1f; }
+.alert.zero { background: var(--panel-3); color: var(--faint); border-color: var(--line); }
+
+/* Painel do agente */
+.panel { min-width: 0; display: grid; gap: 16px; }
+.phead { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; position: relative; overflow: hidden; }
+.phead::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--rc, var(--accent)); }
+.pav { width: 46px; height: 46px; flex: none; border-radius: 12px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 18px; color: #050505; }
+.phead .pt { min-width: 0; flex: 1 1 240px; }
+.phead h2 { font-family: var(--font-display); font-weight: 600; font-size: 22px; margin: 0; line-height: 1.1; }
+.phead .parea { font-size: 12px; color: var(--rc, var(--accent-soft)); font-family: var(--font-pixel); letter-spacing: .06em; text-transform: uppercase; }
+.phead .pfoca { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; min-width: 0; }
+.card > h3 { font-family: var(--font-display); font-weight: 600; font-size: 16px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.card > h3 .count { font-family: var(--font-pixel); font-size: 10px; color: var(--muted); }
+
+/* Tiles de KPI */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.tile { background: var(--panel-2); border: 1px solid var(--line); border-radius: 13px; padding: 12px 13px; }
+.tile b { display: block; font-family: var(--font-display); font-size: 24px; color: var(--fg); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tile .tl { font-size: 12px; color: var(--muted); }
+.tile .tr { font-size: 11px; font-weight: 600; margin-top: 3px; }
+.tr.up { color: var(--accent-soft); } .tr.down { color: var(--sev-alta); } .tr.flat { color: var(--muted); }
+
+/* O que melhorar agora */
+.improve { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.imp { display: grid; grid-template-columns: 4px 1fr auto; gap: 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px 11px 0; overflow: hidden; }
+.imp .stripe { background: var(--sc); border-radius: 4px 0 0 4px; margin: -11px 0; }
+.imp .itxt { min-width: 0; }
+.imp .sev { font-family: var(--font-pixel); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--sc); }
+.imp .fato { font-weight: 600; font-size: 14px; margin: 2px 0; }
+.imp .acao { font-size: 13px; color: var(--muted); }
+.imp .acao b { color: var(--accent-soft); font-weight: 600; }
+.imp.done .fato, .imp.done .acao { text-decoration: line-through; opacity: .5; }
+.impacts { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+.mini { font: inherit; font-size: 11px; padding: 5px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-3); color: var(--fg); cursor: pointer; white-space: nowrap; }
+.mini:hover { border-color: var(--accent-dim, #2f6a1f); color: var(--accent-soft); }
+.mini:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 1px; }
+.mini.ok { color: var(--accent-soft); border-color: #2f6a1f; }
+
+/* Tabela de dados */
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 460px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-pixel); font-size: 10px; letter-spacing: .05em; color: var(--faint); text-transform: uppercase; font-weight: 400; }
+tbody tr:hover { background: var(--panel-2); }
+td.num { font-variant-numeric: tabular-nums; }
+.ex { font-family: var(--font-pixel); font-size: 8px; color: var(--faint); border: 1px solid var(--line); border-radius: 5px; padding: 1px 4px; margin-left: 6px; vertical-align: middle; }
+.pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.ok { background: #0f2a12; color: var(--accent-soft); } .pill.warn { background: #2e2608; color: var(--sev-media); } .pill.bad { background: #2a0f0f; color: var(--sev-alta); } .pill.neutral { background: var(--panel-3); color: var(--muted); }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+.foot { color: var(--faint); font-size: 12px; text-align: center; }
+.foot a { color: var(--accent-soft); }
+</style>
+
+<div class="shell">
+  <header>
+    <svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Logo AXIS Labs">
+      <rect width="100" height="100" rx="20" fill="#050505"/>
+      <polygon points="50,14 81,32 81,68 50,86 19,68 19,32" fill="none" stroke="#39ff14" stroke-width="5.5" stroke-linejoin="round"/>
+      <path d="M38 38 L50 31 L62 38 L62 52 L50 59 L38 52 Z" fill="none" stroke="#39ff14" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M50 59 L50 72 M38 52 L28 58 M62 52 L72 58" fill="none" stroke="#39ff14" stroke-width="4.5" stroke-linecap="round"/>
+    </svg>
+    <div class="brand">
+      <div class="eyebrow">Central de Operações · AXIS Labs</div>
+      <h1><em>AXIS</em> Labs — Agentes</h1>
+      <p class="tagline">Cada agente com seus números, o que melhorar agora e os dados da área. Performance que acelera.</p>
+    </div>
+  </header>
+
+  <div class="kpibar" id="kpibar"></div>
+
+  <div class="layout">
+    <nav class="nav" aria-label="Agentes"><div id="navroot"></div></nav>
+    <section class="panel" id="panel" aria-live="polite"></section>
+  </div>
+
+  <p class="foot">Dados marcados <span class="ex">EX</span> são exemplos para você substituir. O que você marca como feito ou envia ao plano fica salvo neste navegador. Nomes da equipe são ilustrativos. · <a href="../">voltar ao escritório</a></p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // KPIs globais do topo
+  const GLOBAL = [
+    { v: "R$ 7.500", l: "Receita recorrente" },
+    { v: "5", l: "Clientes ativos" },
+    { v: "182", l: "Leads no mês" },
+    { v: "23", l: "Matrículas atribuídas" },
+  ];
+
+  // Agentes: cada um com KPIs, melhorias (sev/fato/ação) e tabela de dados
+  const AGENTS = [
+    { id: "diretoria", group: "Diretoria", name: "Vitor", area: "Diretoria", color: "#ffd23f",
+      foca: "Visão geral das áreas e o plano de melhorias da AXIS.",
+      kpis: [
+        { b: "R$ 7.500", l: "MRR", tr: "+12% vs mês", d: "up" },
+        { b: "5", l: "Clientes ativos", tr: "+1 no mês", d: "up" },
+        { b: "R$ 1.500", l: "Ticket médio", tr: "estável", d: "flat" },
+        { b: "58%", l: "Margem estimada", tr: "−3 pts", d: "down" },
+      ],
+      improve: [
+        { s: "alta", f: "2 clientes consomem 70% das horas da operação.", a: "Padronizar onboarding e automações antes de entrar o 6º cliente." },
+        { s: "media", f: "Nome AXIS ainda não verificado no INPI.", a: "Abrir busca no INPI e registrar domínio e redes antes da arte final." },
+        { s: "baixa", f: "Sem contrato-modelo com assinatura digital.", a: "Fechar modelo com o Jurídico e usar assinatura eletrônica." },
+      ],
+      isPlan: true },
+
+    { id: "atendimento", group: "Times", name: "Atendimento", area: "Recepção", color: "#39ff14",
+      foca: "Primeiro contato: responder rápido e levar o interessado à aula experimental.",
+      kpis: [
+        { b: "182", l: "Leads no mês", tr: "+24 vs mês", d: "up" },
+        { b: "14 min", l: "1ª resposta", tr: "meta < 10 min", d: "down" },
+        { b: "86%", l: "Leads contatados", tr: "+4 pts", d: "up" },
+        { b: "41", l: "Aulas agendadas", tr: "+9 no mês", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "31 leads do Instagram sem resposta há mais de 24h.", a: "Ligar o agente de FAQ para responder na hora e marcar follow-up." },
+        { s: "media", f: "Tempo de 1ª resposta acima da meta (14 min).", a: "Criar respostas aprovadas para as 5 perguntas mais comuns." },
+        { s: "baixa", f: "Canal do WhatsApp sem etiqueta de origem.", a: "Marcar a origem de cada lead para o Dados medir campanha." },
+      ],
+      cols: ["Lead", "Canal", "Entrou", "Status", "Próxima ação"],
+      rows: [
+        ["Marcos R.", "Instagram", "hoje 09:12", { p: "warn", t: "Sem resposta" }, "Responder FAQ"],
+        ["Juliana P.", "WhatsApp", "ontem", { p: "ok", t: "Agendou aula" }, "Lembrete 2h antes"],
+        ["Diego A.", "Indicação", "ontem", { p: "neutral", t: "Em contato" }, "Confirmar horário"],
+        ["Rafaela S.", "Anúncio", "2 dias", { p: "bad", t: "Sem retorno" }, "2ª tentativa"],
+      ] },
+
+    { id: "marketing", group: "Times", name: "Marketing", area: "Conteúdo e tráfego", color: "#ff7a1a",
+      foca: "Conteúdo e tráfego que geram aula experimental, não só curtidas.",
+      kpis: [
+        { b: "18", l: "Posts no mês", tr: "+3 vs mês", d: "up" },
+        { b: "42 mil", l: "Alcance", tr: "+11%", d: "up" },
+        { b: "97", l: "Leads por campanha", tr: "+15", d: "up" },
+        { b: "R$ 6,10", l: "Custo por lead", tr: "−R$ 0,80", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "Campanha 'Aula grátis' parada há 5 dias.", a: "Subir 3 novos criativos de vídeo do treino." },
+        { s: "media", f: "2 academias clientes sem conteúdo nas redes nesta semana.", a: "Produzir um carrossel e um reels para cada uma." },
+        { s: "baixa", f: "Nenhum post desta semana com CTA de aula experimental.", a: "Padronizar o CTA 'Agende sua aula' em todo post." },
+      ],
+      cols: ["Campanha", "Formato", "Leads", "CPL", "Status"],
+      rows: [
+        ["Aula grátis JJ", "Reels", "54", "R$ 5,40", { p: "bad", t: "Pausada" }],
+        ["Turma iniciante", "Carrossel", "29", "R$ 7,10", { p: "ok", t: "No ar" }],
+        ["Retorno de alunos", "Stories", "14", "R$ 6,90", { p: "ok", t: "No ar" }],
+      ] },
+
+    { id: "comercial", group: "Times", name: "Comercial", area: "Prospecção e fechamento", color: "#ffc400",
+      foca: "Transformar interesse em aula experimental, comparecimento e matrícula.",
+      kpis: [
+        { b: "12 / dia", l: "Contatos ativos", tr: "na meta", d: "flat" },
+        { b: "41", l: "Aulas experimentais", tr: "+9 no mês", d: "up" },
+        { b: "73%", l: "Comparecimento", tr: "meta 75%", d: "down" },
+        { b: "56%", l: "Conversão em matrícula", tr: "+6 pts", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "9 aulas experimentais sem confirmação para amanhã.", a: "Enviar lembrete e pedir confirmação ainda hoje." },
+        { s: "media", f: "Comparecimento abaixo da meta (73%).", a: "Mandar lembrete 2h antes com localização e o que levar." },
+        { s: "baixa", f: "Follow-up de quem faltou está manual.", a: "Automatizar 2 mensagens de remarcação." },
+      ],
+      cols: ["Interessado", "Etapa", "Aula", "Compareceu", "Matrícula"],
+      rows: [
+        ["Juliana P.", "Aula marcada", "amanhã 19h", { p: "neutral", t: "Aguardando" }, "—"],
+        ["Diego A.", "Experimentou", "seg 20h", { p: "ok", t: "Sim" }, { p: "ok", t: "Matriculou" }],
+        ["Rafaela S.", "Remarcar", "faltou", { p: "bad", t: "Não" }, "—"],
+        ["Pedro L.", "Experimentou", "ter 19h", { p: "ok", t: "Sim" }, { p: "warn", t: "Decidindo" }],
+      ] },
+
+    { id: "juridico", group: "Times", name: "Jurídico", area: "Contratos e LGPD", color: "#6c7bff",
+      foca: "Contratos, termos de serviço e LGPD dos clientes e dos dados.",
+      kpis: [
+        { b: "5", l: "Contratos ativos", tr: "+1 no mês", d: "up" },
+        { b: "3", l: "Pendências LGPD", tr: "resolver", d: "down" },
+        { b: "2", l: "Termos a revisar", tr: "—", d: "flat" },
+        { b: "4 dias", l: "Prazo médio", tr: "−1 dia", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "Sem responsável por dados definido em 3 academias (LGPD).", a: "Definir controlador e operador por contrato e registrar." },
+        { s: "media", f: "Termo de uso do agente de IA não revisado.", a: "Revisar base aprovada e limites antes de escalar." },
+        { s: "baixa", f: "Contratos sem cláusula de opt-out de mensagens.", a: "Incluir cláusula e aviso de descadastro." },
+      ],
+      cols: ["Cliente", "Documento", "Tipo", "Status", "Prazo"],
+      rows: [
+        ["Academia Alfa", "Contrato piloto 90d", "Serviço", { p: "ok", t: "Assinado" }, "—"],
+        ["Box Centro", "Termo LGPD", "Dados", { p: "warn", t: "Pendente" }, "3 dias"],
+        ["JJ Team", "Contrato", "Serviço", { p: "bad", t: "Sem responsável" }, "vencido"],
+      ] },
+
+    { id: "financeiro", group: "Times", name: "Financeiro", area: "Faturamento e caixa", color: "#19e39a",
+      foca: "Faturamento, repasses, caixa e custo de IA e ferramentas por cliente.",
+      kpis: [
+        { b: "R$ 7.500", l: "Faturamento do mês", tr: "+12%", d: "up" },
+        { b: "R$ 3.000", l: "A receber", tr: "2 faturas", d: "flat" },
+        { b: "R$ 790", l: "Inadimplência", tr: "1 cliente", d: "down" },
+        { b: "R$ 42", l: "Custo IA / cliente", tr: "estável", d: "flat" },
+      ],
+      improve: [
+        { s: "alta", f: "1 cliente com mensalidade atrasada há 12 dias (R$ 790).", a: "Enviar cobrança amigável e combinar nova data." },
+        { s: "media", f: "Verba de mídia misturada com honorário em 2 contratos.", a: "Separar a verba de anúncios do honorário na nota." },
+        { s: "baixa", f: "Custo de IA por cliente não acompanhado de perto.", a: "Registrar o consumo mensal por conta." },
+      ],
+      cols: ["Cliente", "Tipo", "Valor", "Vencimento", "Status"],
+      rows: [
+        ["Academia Alfa", "Mensalidade", "R$ 1.500", "05/11", { p: "ok", t: "Pago" }],
+        ["Box Centro", "Mensalidade", "R$ 1.500", "10/11", { p: "warn", t: "A vencer" }],
+        ["JJ Team", "Mensalidade", "R$ 790", "13/10", { p: "bad", t: "Atrasado" }],
+      ] },
+
+    { id: "planejador", group: "A Legião · IA", name: "Planejador", area: "Arquiteto de soluções", color: "#b14bff",
+      foca: "Transforma pedidos vagos em planos passo a passo antes de executar.",
+      kpis: [
+        { b: "4", l: "Planos abertos", tr: "2 esta semana", d: "up" },
+        { b: "17", l: "Tarefas no backlog", tr: "−3", d: "up" },
+        { b: "6", l: "Em execução", tr: "—", d: "flat" },
+        { b: "3,2 dias", l: "Lead time médio", tr: "−0,4", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "Onboarding de novo cliente sem checklist padrão.", a: "Desenhar o fluxo de onboarding em 6 passos." },
+        { s: "media", f: "Backlog sem priorização clara.", a: "Classificar cada item por impacto × esforço." },
+        { s: "baixa", f: "Sem definição de 'pronto' por tarefa.", a: "Escrever critério de aceite por item." },
+      ],
+      cols: ["Plano", "Área", "Passos", "Status", "Dono"],
+      rows: [
+        ["Onboarding Academia Alfa", "Comercial", "6", { p: "ok", t: "Em execução" }, "Planejador"],
+        ["Automação follow-up", "Atendimento", "4", { p: "warn", t: "Planejando" }, "Implementador"],
+        ["Pacote de conteúdo JJ", "Marketing", "5", { p: "neutral", t: "Backlog" }, "—"],
+      ] },
+
+    { id: "pesquisador", group: "A Legião · IA", name: "Pesquisador", area: "Mercado e benchmark", color: "#b14bff",
+      foca: "Pesquisa de mercado, concorrência e benchmarks para embasar decisões.",
+      kpis: [
+        { b: "9", l: "Pesquisas no mês", tr: "+2", d: "up" },
+        { b: "14", l: "Concorrentes mapeados", tr: "+5", d: "up" },
+        { b: "6", l: "Benchmarks", tr: "—", d: "flat" },
+        { b: "31", l: "Fontes citadas", tr: "+8", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "Preço de mercado do nicho jiu-jítsu ainda não validado.", a: "Mapear 10 academias e as faixas de ticket." },
+        { s: "media", f: "Sem benchmark de tempo de resposta do setor.", a: "Levantar o padrão de 1ª resposta dos concorrentes." },
+        { s: "baixa", f: "Fontes sem data de coleta.", a: "Datar cada dado para revisão futura." },
+      ],
+      cols: ["Tema", "Fonte", "Coletado", "Confiança", "Uso"],
+      rows: [
+        ["Ticket médio JJ", "Entrevistas", "em aberto", { p: "warn", t: "Parcial" }, "Preço"],
+        ["Concorrentes locais", "Instagram/Maps", "esta semana", { p: "ok", t: "Alta" }, "Posicionamento"],
+        ["1ª resposta do setor", "Mistério", "pendente", { p: "neutral", t: "A fazer" }, "Meta"],
+      ] },
+
+    { id: "implementador", group: "A Legião · IA", name: "Implementador", area: "Automação e integrações", color: "#b14bff",
+      foca: "Constrói e mantém as automações e integrações da operação.",
+      kpis: [
+        { b: "7", l: "Automações ativas", tr: "+1", d: "up" },
+        { b: "3", l: "Em desenvolvimento", tr: "—", d: "flat" },
+        { b: "1", l: "Falhas em 24h", tr: "investigar", d: "down" },
+        { b: "99,2%", l: "Uptime", tr: "−0,3 pt", d: "down" },
+      ],
+      improve: [
+        { s: "alta", f: "Automação de follow-up falhou 1 vez nas últimas 24h.", a: "Investigar o log e adicionar nova tentativa automática." },
+        { s: "media", f: "Integração do WhatsApp sem monitor de fila.", a: "Adicionar alerta quando a fila passar de 20." },
+        { s: "baixa", f: "Segredos ainda em variável local.", a: "Mover para um gerenciador de segredos." },
+      ],
+      cols: ["Automação", "Gatilho", "Última execução", "Status", "Dono"],
+      rows: [
+        ["Resposta de FAQ", "Novo lead", "há 4 min", { p: "ok", t: "OK" }, "Implementador"],
+        ["Follow-up aula", "Sem confirmação", "há 2h", { p: "bad", t: "Falhou" }, "Implementador"],
+        ["Relatório mensal", "Dia 1", "01/10", { p: "ok", t: "OK" }, "Dados"],
+      ] },
+
+    { id: "revisor", group: "A Legião · IA", name: "Revisor-QA", area: "Qualidade", color: "#b14bff",
+      foca: "Garante qualidade: roda os checks e revisa antes de ir para o cliente.",
+      kpis: [
+        { b: "22", l: "Revisões no mês", tr: "+5", d: "up" },
+        { b: "9", l: "Erros encontrados", tr: "—", d: "flat" },
+        { b: "68%", l: "Aprovadas na 1ª", tr: "+4 pts", d: "up" },
+        { b: "4", l: "Pendências", tr: "revisar", d: "down" },
+      ],
+      improve: [
+        { s: "alta", f: "2 relatórios de cliente sem revisão antes do envio.", a: "Revisar números e fontes antes de enviar." },
+        { s: "media", f: "Sem checklist de revisão de criativo.", a: "Criar checklist de marca e CTA." },
+        { s: "baixa", f: "Erros não categorizados.", a: "Etiquetar por tipo para achar o padrão." },
+      ],
+      cols: ["Item", "Área", "Resultado", "Erros", "Status"],
+      rows: [
+        ["Relatório Alfa", "Financeiro", { p: "warn", t: "Revisar" }, "—", "Pendente"],
+        ["Reels aula grátis", "Marketing", { p: "ok", t: "Aprovado" }, "0", "OK"],
+        ["Resposta do agente", "Atendimento", { p: "bad", t: "Ajustar" }, "2", "Voltou"],
+      ] },
+
+    { id: "seguranca", group: "A Legião · IA", name: "Segurança", area: "Dados e permissões", color: "#b14bff",
+      foca: "Protege dados, segredos e permissões; cuida da LGPD técnica.",
+      kpis: [
+        { b: "11", l: "Checagens no mês", tr: "+3", d: "up" },
+        { b: "2", l: "Riscos abertos", tr: "tratar", d: "down" },
+        { b: "0", l: "Segredos expostos", tr: "ok", d: "flat" },
+        { b: "8", l: "Acessos revisados", tr: "+8", d: "up" },
+      ],
+      improve: [
+        { s: "alta", f: "Planilha de leads compartilhada por link público.", a: "Restringir acesso e trocar para convite por e-mail." },
+        { s: "media", f: "Permissões de ferramentas não revisadas há 60 dias.", a: "Revisar e remover os acessos sem uso." },
+        { s: "baixa", f: "Sem registro de quem acessa dados do cliente.", a: "Ligar o log de acesso." },
+      ],
+      cols: ["Risco", "Severidade", "Área", "Status", "Ação"],
+      rows: [
+        ["Planilha pública", { p: "bad", t: "Alta" }, "Atendimento", { p: "warn", t: "Aberto" }, "Restringir"],
+        ["Acessos antigos", { p: "warn", t: "Média" }, "Geral", { p: "warn", t: "Aberto" }, "Revisar"],
+        ["Credenciais no .env", { p: "ok", t: "Baixa" }, "IA", { p: "ok", t: "Resolvido" }, "—"],
+      ] },
+  ];
+
+  const byId = Object.fromEntries(AGENTS.map(a => [a.id, a]));
+  const LS_DONE = "axis.done.v1", LS_PLAN = "axis.plan.v1";
+  const SEEDPLAN = [
+    { area: "Diretoria", melhoria: "Definir faixa de preço do piloto de 90 dias", resp: "Vitor", prazo: "Semana 1", status: "A fazer", seed: true },
+    { area: "Comercial", melhoria: "Roteiro de confirmação de aula experimental", resp: "Comercial", prazo: "Semana 1", status: "Fazendo", seed: true },
+  ];
+
+  function load(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+  let done = new Set(load(LS_DONE, []));
+  let plan = load(LS_PLAN, null) || SEEDPLAN.slice();
+
+  const impId = (a, i) => a.id + ":" + i;
+  const openAlerts = a => a.improve.filter((m, i) => m.s === "alta" && !done.has(impId(a, i))).length;
+
+  const navroot = document.getElementById("navroot");
+  const panel = document.getElementById("panel");
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // KPIs globais
+  document.getElementById("kpibar").innerHTML = GLOBAL.map(k => `<div class="gk"><b>${esc(k.v)}</b><span>${esc(k.l)}</span></div>`).join("");
+
+  // Barra lateral
+  function renderNav() {
+    const groups = {};
+    AGENTS.forEach(a => { (groups[a.group] = groups[a.group] || []).push(a); });
+    navroot.innerHTML = Object.entries(groups).map(([g, list]) => `
+      <div class="navgroup">
+        <div class="navtitle">${esc(g)}</div>
+        <ul class="navlist">${list.map(a => {
+          const n = openAlerts(a);
+          return `<li><button class="navbtn" data-id="${a.id}" type="button">
+            <span class="dot" style="color:${a.color};background:${a.color}"></span>
+            <span class="nmeta"><span class="nname">${esc(a.name)}</span><span class="narea">${esc(a.area)}</span></span>
+            <span class="alert ${n ? "" : "zero"}">${n}</span>
+          </button></li>`;
+        }).join("")}</ul>
+      </div>`).join("");
+    navroot.querySelectorAll(".navbtn").forEach(b => b.addEventListener("click", () => select(b.dataset.id)));
+    markNav();
+  }
+  function markNav() { navroot.querySelectorAll(".navbtn").forEach(b => b.classList.toggle("on", b.dataset.id === current)); }
+
+  function pill(v) { return typeof v === "object" && v ? `<span class="pill ${v.p}">${esc(v.t)}</span>` : esc(v); }
+
+  function renderPanel(a) {
+    const tiles = a.kpis.map(k => `<div class="tile"><b>${esc(k.b)}</b><div class="tl">${esc(k.l)}</div><div class="tr ${k.d}">${esc(k.tr)}</div></div>`).join("");
+    const imp = a.improve.map((m, i) => {
+      const id = impId(a, i), isDone = done.has(id);
+      return `<li class="imp ${isDone ? "done" : ""}" style="--sc:var(--sev-${m.s})">
+        <span class="stripe"></span>
+        <div class="itxt"><div class="sev">${m.s === "alta" ? "Prioridade alta" : m.s === "media" ? "Prioridade média" : "Quando der"}</div>
+          <div class="fato">${esc(m.f)}</div><div class="acao"><b>Ação:</b> ${esc(m.a)}</div></div>
+        <div class="impacts">
+          <button class="mini plan-btn" data-id="${id}" type="button">+ Plano</button>
+          <button class="mini done-btn ${isDone ? "ok" : ""}" data-id="${id}" type="button">${isDone ? "✓ Feito" : "Feito"}</button>
+        </div></li>`;
+    }).join("");
+
+    let dataCard;
+    if (a.isPlan) {
+      dataCard = `<div class="card"><h3>Plano de melhorias <span class="count">${plan.length} itens</span></h3>
+        <div class="tablewrap"><table><thead><tr><th>Área</th><th>Melhoria</th><th>Responsável</th><th>Prazo</th><th>Status</th></tr></thead>
+        <tbody>${plan.length ? plan.map(p => `<tr><td>${esc(p.area)}</td><td>${esc(p.melhoria)}${p.seed ? '<span class="ex">EX</span>' : ""}</td><td>${esc(p.resp || "—")}</td><td>${esc(p.prazo || "—")}</td><td>${pill({ p: p.status === "Feito" ? "ok" : p.status === "Fazendo" ? "warn" : "neutral", t: p.status || "A fazer" })}</td></tr>`).join("") : `<tr><td colspan="5" class="note">Nenhum item no plano. Use <b>+ Plano</b> em qualquer agente para trazer um alerta para cá.</td></tr>`}</tbody></table></div></div>`;
+    } else {
+      dataCard = `<div class="card"><h3>Dados da área <span class="count">${a.rows.length} registros</span></h3>
+        <div class="tablewrap"><table><thead><tr>${a.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead>
+        <tbody>${a.rows.map(r => `<tr>${r.map((cell, ci) => `<td${ci === 0 ? "" : " class=num"}>${pill(cell)}${ci === 0 ? '<span class="ex">EX</span>' : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
+    }
+
+    panel.innerHTML = `
+      <div class="phead" style="--rc:${a.color}">
+        <div class="pav" style="background:${a.color}">${esc(a.name[0])}</div>
+        <div class="pt"><div class="parea">${esc(a.area)}</div><h2>${esc(a.name)}</h2><p class="pfoca">${esc(a.foca)}</p></div>
+      </div>
+      <div class="card"><h3>Indicadores</h3><div class="tiles">${tiles}</div></div>
+      <div class="card"><h3>O que melhorar agora <span class="count">da mais urgente para a menos</span></h3><ul class="improve">${imp}</ul></div>
+      ${dataCard}`;
+
+    panel.querySelectorAll(".done-btn").forEach(b => b.addEventListener("click", () => toggleDone(b.dataset.id)));
+    panel.querySelectorAll(".plan-btn").forEach(b => b.addEventListener("click", () => addToPlan(b.dataset.id)));
+  }
+
+  function toggleDone(id) {
+    if (done.has(id)) done.delete(id); else done.add(id);
+    save(LS_DONE, [...done]);
+    renderPanel(byId[current]); renderNav();
+  }
+  function addToPlan(id) {
+    const [aid, i] = id.split(":"); const a = byId[aid]; const m = a.improve[+i];
+    if (plan.some(p => p.melhoria === m.a && p.area === a.area)) { flash(id); return; }
+    plan.unshift({ area: a.area, melhoria: m.a, resp: "—", prazo: "—", status: "A fazer" });
+    save(LS_PLAN, plan); flash(id);
+    if (current === "diretoria") renderPanel(byId.diretoria);
+  }
+  function flash(id) {
+    const btn = panel.querySelector(`.plan-btn[data-id="${id}"]`);
+    if (btn) { const t = btn.textContent; btn.textContent = "✓ No plano"; btn.classList.add("ok"); setTimeout(() => { btn.textContent = t; btn.classList.remove("ok"); }, 1400); }
+  }
+
+  let current = null;
+  function select(id, fromHash) {
+    if (!byId[id]) id = "diretoria";
+    current = id; markNav(); renderPanel(byId[id]);
+    if (!fromHash) { try { history.replaceState(null, "", "#" + id); } catch (e) {} }
+    panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  renderNav();
+  const start = (location.hash || "").replace(/^#/, "");
+  select(byId[start] ? start : "diretoria", true);
+  window.addEventListener("hashchange", () => { const h = (location.hash || "").replace(/^#/, ""); if (byId[h] && h !== current) select(h, true); });
+})();
+</script>
